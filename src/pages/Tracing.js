@@ -1,8 +1,12 @@
-import React, { useState, useRef } from "react";
+// Updated src/pages/Tracing.js
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Howl } from "howler";
 import CanvasDraw from "react-canvas-draw";
 import { Link } from "react-router-dom";
+import axios from "axios"; // Import Axios for API calls
+axios.defaults.baseURL = "http://localhost:5000";
+
 
 // Data
 const alphabets = [
@@ -73,6 +77,25 @@ const Tracing = () => {
   const [index, setIndex] = useState(0);
   const currentAlphabet = alphabets[index];
   const canvasRef = useRef(null);
+  const [progress, setProgress] = useState({});
+
+  // Fetch user tracing progress
+  const fetchProgress = async () => {
+    try {
+      const response = await axios.get("/api/tracing/progress");
+      const progressData = response.data.reduce((acc, item) => {
+        acc[item.letter] = item;
+        return acc;
+      }, {});
+      setProgress(progressData);
+    } catch (error) {
+      console.error("Failed to fetch tracing progress.", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProgress();
+  }, []);
 
   // Function to play sound
   const playSound = () => {
@@ -80,15 +103,45 @@ const Tracing = () => {
     sound.play();
   };
 
+  // Save Tracing Data
+  const saveTracingData = async (deviationScore, isCorrect) => {
+    const currentProgress = progress[currentAlphabet.letter] || {
+      attempts: 0,
+      correct_attempts: 0,
+    };
+
+    try {
+      console.log("Sending data to backend...");
+      await axios.post("/api/tracing/save", {
+        letter: currentAlphabet.letter,
+        deviation_score: deviationScore, // Placeholder for now
+        attempts: currentProgress.attempts + 1,
+        correct_attempts: isCorrect ? currentProgress.correct_attempts + 1 : currentProgress.correct_attempts,
+      });
+      fetchProgress();
+      console.log("Data sent successfully!");
+    } catch (error) {
+      console.error("Failed to save tracing data.", error);
+    }
+  };
+
+  // Handle Tracing Submission
+  const handleSubmit = () => {
+    const deviationScore = Math.random() * 10; // Placeholder for now
+    const isCorrect = deviationScore < 5; // Arbitrary threshold for success
+    saveTracingData(deviationScore, isCorrect);
+    canvasRef.current.clear();
+  };
+
   // Navigation Functions
   const nextLetter = () => {
     setIndex((prev) => (prev + 1) % alphabets.length);
-    canvasRef.current.clear(); // Clear canvas for new letter
+    canvasRef.current.clear();
   };
 
   const prevLetter = () => {
     setIndex((prev) => (prev - 1 + alphabets.length) % alphabets.length);
-    canvasRef.current.clear(); // Clear canvas for new letter
+    canvasRef.current.clear();
   };
 
   return (
@@ -118,15 +171,13 @@ const Tracing = () => {
         {/* Right: Tracing Area */}
         <div style={styles.drawingArea}>
           {/* Guide Letter for Tracing */}
-          <div style={styles.guideLetter}>
-            {currentAlphabet.letter}
-          </div>
+          <div style={styles.guideLetter}>{currentAlphabet.letter}</div>
 
           {/* Drawing Canvas */}
           <CanvasDraw
             ref={canvasRef}
-            brushColor="#FF4081" // Playful brush color
-            brushRadius={10} // Thick brush for kids
+            brushColor="#FF4081"
+            brushRadius={10}
             lazyRadius={2}
             canvasWidth={300}
             canvasHeight={300}
@@ -135,6 +186,11 @@ const Tracing = () => {
           />
         </div>
       </div>
+
+      {/* Submit Button */}
+      <motion.button style={styles.submitButton} whileTap={{ scale: 0.9 }} onClick={handleSubmit}>
+        ✅ Submit
+      </motion.button>
 
       {/* Navigation Buttons */}
       <div style={styles.buttonContainer}>
@@ -223,14 +279,24 @@ const styles = {
     transform: "translate(-50%, -50%)",
     fontSize: "8rem",
     fontWeight: "bold",
-    color: "rgba(0, 0, 0, 0.1)", // Light and semi-transparent
+    color: "rgba(0, 0, 0, 0.1)",
     zIndex: 1,
   },
   canvas: {
     position: "absolute",
     top: 0,
     left: 0,
-    zIndex: 2, // Above guide letter
+    zIndex: 2,
+  },
+  submitButton: {
+    marginTop: "20px",
+    fontSize: "1.2rem",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "10px",
+    backgroundColor: "#FF9800",
+    color: "white",
+    cursor: "pointer",
   },
   buttonContainer: {
     display: "flex",

@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -5,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const tracingRoutes = require('./routes/tracingRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const progressRoutes = require('./routes/progressRoutes');
+
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +23,7 @@ mongoose.connect(process.env.MONGO_URI, {
 const app = express();
 
 // Middleware to parse JSON
+app.use(cors()); // 🛑 FIX CORS ERROR HERE
 app.use(express.json());
 
 // ROUTES

@@ -3,18 +3,24 @@ const TracingData = require('../models/TracingData');
 // Save Tracing Data
 const saveTracingData = async (req, res) => {
   const { letter, deviation_score, attempts, correct_attempts } = req.body;
+  console.log("Received data:", req.body); // <-- Add this for debugging
 
   try {
+    const user_id = '507f191e810c19729de860ea';  // Temporary valid ObjectId
     const tracingData = await TracingData.create({
-      user_id: req.user.id,
+     // user_id: req.user.id,  UNCOMMENT THIS LATER****
+      user_id,  //REMOVE THIS LATER***
       letter,
       deviation_score,
       attempts,
       correct_attempts,
     });
 
+    console.log("Saved successfully:", tracingData); // <-- Add this to confirm saving
+
     res.status(201).json(tracingData);
   } catch (error) {
+    console.error("Error saving data:", error);
     res.status(500).json({ message: 'Failed to save tracing data' });
   }
 };
