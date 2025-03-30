@@ -3,6 +3,7 @@ const axios = require('axios');
 
 // Save Tracing Data
 const saveTracingData = async (req, res) => {
+
   const { letter, deviation_score, attempts, correct_attempts } = req.body;
   console.log("Received data:", req.body); // <-- Add this for debugging
   
@@ -14,8 +15,11 @@ const saveTracingData = async (req, res) => {
 
   try {
     const user_id = '507f191e810c19729de860ea';  // Temporary valid ObjectId
+
+
+      
     const tracingData = await TracingData.create({
-     // user_id: req.user.id,  UNCOMMENT THIS LATER****
+      //user_id: req.user.id,  UNCOMMENT THIS LATER****
       user_id,  //REMOVE THIS LATER***
       letter,
       deviation_score,
@@ -57,6 +61,7 @@ const predictTracingData = async (req, res) => {
     res.status(200).json({
       deviation_score: response.data.deviation_score,
       isCorrect: response.data.isCorrect || response.data.deviation_score < 5,
+      //correct_attempts: response.data.correct_attempts || 0, // ✅ Send correct attempts
     });
   } catch (error) {
     console.error("❌ Prediction error:", error);

@@ -67,10 +67,13 @@ def predict():
         expected_letter = data["letter"]
         is_correct = predicted_letter == expected_letter
 
+        #correct_attempts = 1 if is_correct else 0  # ✅ Increase if correct
+
         return jsonify({
             "predicted_letter": predicted_letter,
             "deviation_score": deviation_score,
             "isCorrect": is_correct
+            #"correct_attempts": correct_attempts  # ✅ Add this
         })
 
     except Exception as e:

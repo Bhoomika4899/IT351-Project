@@ -120,6 +120,8 @@ const Tracing = () => {
         deviation_score: deviationScore, // Placeholder for now
         attempts: currentProgress.attempts + 1,
         correct_attempts: isCorrect ? currentProgress.correct_attempts + 1 : currentProgress.correct_attempts,
+        //correct_attempts: isCorrect ? 1 : 0, // ✅ Correctly set based on prediction
+        //isCorrect, // ✅ Add this to avoid undefined issue
       });
       fetchProgress();
       console.log("Data sent successfully!");
