@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios"; // Import axios for API calls
 
 const hindiAlphabets = [
   "अ", "आ", "इ", "ई", "उ", "ऊ", "ऋ", "ए", "ऐ", "ओ", "औ", "अं", "अः",
@@ -17,6 +18,22 @@ const Quiz = () => {
   const [currentLetter, setCurrentLetter] = useState("");
   const [options, setOptions] = useState([]);
   const [feedback, setFeedback] = useState("");
+  const [score, setScore] = useState(0); // Track user's score
+
+  // Load game progress when the component mounts
+  useEffect(() => {
+    fetchGameProgress();
+  }, []);
+
+  // Fetch game progress from API
+  const fetchGameProgress = async () => {
+    try {
+      const response = await axios.get("/api/games/Quiz");
+      setScore(response.data.correct_attempts); // ✅ Correct field
+    } catch (error) {
+      console.error("Error fetching game progress:", error);
+    }
+  };
 
   useEffect(() => {
     generateNewQuestion();
@@ -33,15 +50,34 @@ const Quiz = () => {
     setFeedback("");
   };
 
-  const handleOptionClick = (selectedLetter) => {
-    if (selectedLetter === currentLetter) {
+  const handleOptionClick = async (selectedLetter) => {
+    const isCorrect = selectedLetter === currentLetter;
+
+    if (isCorrect) {
       setFeedback("✅ Yay! You got it!");
+      setScore((prevScore) => prevScore + 1); // Increase local score
+
+      // Send progress update to backend
+      try {
+        await axios.post("/api/games/Quiz", { correct: true });
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+
       setTimeout(() => {
         setFeedback("");
         generateNewQuestion();
       }, 1000);
     } else {
       setFeedback("❌ Oops! Try again.");
+
+      // Send incorrect attempt to backend
+      try {
+        await axios.post("/api/games/Quiz", { correct: false });
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+
       setTimeout(() => setFeedback(""), 800);
     }
   };
@@ -56,6 +92,11 @@ const Quiz = () => {
       >
         ✏️ Guess the Letter!
       </motion.h1>
+
+      {/* Display Current Score */}
+      <motion.p style={styles.scoreText}>
+        🎯 Score: {score}
+      </motion.p>
 
       <motion.div
         style={styles.letterOutlineContainer}
@@ -117,6 +158,12 @@ const styles = {
     color: "#D32F2F",
     fontWeight: "bold",
     marginBottom: "20px",
+  },
+  scoreText: {
+    fontSize: "1.5rem",
+    color: "#00796B",
+    fontWeight: "bold",
+    marginBottom: "15px",
   },
   letterOutlineContainer: {
     width: "140px",

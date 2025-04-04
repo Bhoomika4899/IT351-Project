@@ -29,7 +29,6 @@ const Home = () => {
         <NavButton to="/tracing" color="#FFD700" text="✍️ Trace Letters" />
         <NavButton to="/games" color="#4CAF50" text="🎮 Play Games" />
         <NavButton to="/progress" color="#2196F3" text="📊 Your Progress" />
-        <NavButton to="/image-processor" color="#2196F3" text="📊 Your Progress" />
       </div>
 
       {/* Background Animation */}

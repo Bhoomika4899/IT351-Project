@@ -1,10 +1,14 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const progressSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  tracing_progress: { type: Object, default: {} },
-  games_progress: { type: Object, default: {} },
-  updatedAt: { type: Date, default: Date.now }
+    userId: String,
+    tracedLetters: [String],  // Letters the child has mastered
+    gameScores: {             // Scores from different games
+        MemoryMatch: Number,
+        SoundMatch: Number,
+        LetterMatch: Number,
+        Quiz: Number
+    }
 });
 
-module.exports = mongoose.model('Progress', progressSchema);
+module.exports = mongoose.model("Progress", progressSchema);

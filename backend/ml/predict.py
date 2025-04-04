@@ -1,84 +1,127 @@
 import base64
 import io
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 from tensorflow.keras.models import load_model
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from scipy.spatial.distance import cosine
 
-# Load the VGG16 model
-model = load_model("hindi_character_model_vgg16.h5")
+# Load the trained model
+model = load_model("model.keras")
 
 # Define Flask app
 app = Flask(__name__)
 CORS(app)
+
+# Hindi Letters Mapping
+hindi_letters = [
+    "ञ", "द", "म", "स", "च", "४",
+    "ट", "ध", "य", "ह", "छ", "५",
+    "ठ", "क", "र", "क्ष", "ज", "६",
+    "ड", "न", "ल", "त्र", "झ", "७",
+    "ढ", "प", "व", "ज्ञ", "०", "८",
+    "ण", "फ", "ख", "ग", "१", "९",
+    "त", "ब", "श", "घ", "२",
+    "थ", "भ", "ष", "ङ", "३"
+]
 
 # Preprocess image for model
 def preprocess_image(image_data):
     try:
         # Decode base64 to raw image bytes
         image_bytes = base64.b64decode(image_data)
-        # Open image and resize to (128, 128) for model
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        image = image.resize((128, 128))
+        image = Image.open(io.BytesIO(image_bytes))
+
+        # Ensure image is grayscale (frontend already sends grayscale)
+        if image.mode != "L":
+            image = image.convert("L")  
+
         # Convert to numpy array and normalize
-        image_array = np.array(image) / 255.0
-        # Add batch dimension
-        image_array = np.expand_dims(image_array, axis=0)
+        image_array = np.array(image) / 255.0  
+
+        # Print image stats
+        print(f"🖼️ Image shape before model input: {image_array.shape}")
+        print(f"🔍 Image pixel range: Min {image_array.min()}, Max {image_array.max()}")
+
+        # Debugging: Save image to check
+        image.save("debug_image.png")
+
+        # Add batch dimension and channel dimension
+        image_array = np.expand_dims(image_array, axis=0)  # Shape: (1, 32, 32)
+        image_array = np.expand_dims(image_array, axis=-1)  # Shape: (1, 32, 32, 1)
+
         return image_array
     except Exception as e:
         print(f"Error in image processing: {str(e)}")
         return None
 
-# Predict Route
+# Calculate deviation using Cosine Similarity
+def calculate_deviation(expected_probs, predicted_probs):
+    """Calculate deviation using Cosine Similarity."""
+    if np.all(predicted_probs == 0):
+        print("❌ Error: Model output is all zeros!")
+        return 10  # Worst case
+
+    deviation_score = cosine(expected_probs, predicted_probs) * 10  # Scale to 0-10
+    print(f"🟢 Cosine Similarity Score: {deviation_score}")
+    
+    return deviation_score
+
+
+# Prediction route
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
         data = request.json
-        print("Received data:", data)  # ✅ Debugging line
         if "letter" not in data or "canvas_data" not in data:
             return jsonify({"error": "Missing required fields"}), 400
-        if "canvas_data" not in data:
-            return jsonify({"error": "Missing canvas_data"}), 400
 
-        # Preprocess canvas_data
         processed_image = preprocess_image(data["canvas_data"])
-        print(f"✅ Processed Image Shape: {processed_image.shape}")  # Should be (1, 128, 128, 3)
-
         if processed_image is None:
-            return jsonify({"error": "Failed to decode and process image"}), 400
+            return jsonify({"error": "Failed to process image"}), 400
 
-        # Make prediction
+        # 🔍 Make prediction
         prediction = model.predict(processed_image)
-        predicted_index = int(np.argmax(prediction))
-        deviation_score = float(np.min(prediction)) * 10  # Lower score = better tracing
+        predicted_probs = prediction[0]
 
-        # Map prediction to Hindi letters
-        hindi_letters = [
-            "अ", "आ", "इ", "ई", "उ", "ऊ", "ऋ", "ए", "ऐ", "ओ", "औ", "अं", "अः",
-            "क", "ख", "ग", "घ", "ङ", "च", "छ", "ज", "झ", "ञ", "ट", "ठ", "ड", "ढ",
-            "ण", "त", "थ", "द", "ध", "न", "प", "फ", "ब", "भ", "म", "य", "र", "ल",
-            "व", "श", "ष", "स", "ह", "क्ष", "त्र", "ज्ञ", "श्र", "ड़", "ढ़"
-        ]
-        # Get the predicted letter
+        # ✅ Debugging: Print raw probabilities
+        print(f"📊 Raw Model Prediction: {predicted_probs}")
+
+        predicted_index = int(np.argmax(predicted_probs))
         predicted_letter = hindi_letters[predicted_index]
 
-        # Check if prediction is correct
         expected_letter = data["letter"]
-        is_correct = predicted_letter == expected_letter
+        expected_index = hindi_letters.index(expected_letter)
 
-        #correct_attempts = 1 if is_correct else 0  # ✅ Increase if correct
+        expected_probs = np.zeros(len(hindi_letters))
+        expected_probs[expected_index] = 1
+
+        # ✅ Debugging: Print expected vs predicted
+        print(f"✅ Expected: {expected_letter} ({expected_index})")
+        print(f"✅ Predicted: {predicted_letter} ({predicted_index})")
+
+        # ✅ Debugging: Print probability of expected letter
+        print(f"🔢 Model Confidence for {expected_letter}: {predicted_probs[expected_index]}")
+
+        # Calculate deviation
+        deviation_score = calculate_deviation(expected_probs, predicted_probs)
+
+        print(f"🟠 Deviation Score: {deviation_score}")
+
+        is_correct = predicted_letter == expected_letter
 
         return jsonify({
             "predicted_letter": predicted_letter,
-            "deviation_score": deviation_score,
+            "deviation_score": round(deviation_score, 4),
             "isCorrect": is_correct
-            #"correct_attempts": correct_attempts  # ✅ Add this
         })
 
     except Exception as e:
-        print(f"Prediction error: {str(e)}")
+        print(f"❌ Prediction error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
+
 
 # Run Flask app
 if __name__ == "__main__":

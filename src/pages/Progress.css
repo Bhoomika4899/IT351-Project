@@ -1,0 +1,110 @@
+.progress-container {
+  text-align: center;
+  padding: 30px;
+  background-color: #E3F2FD; /* Light blue background */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sections */
+.progress-section {
+  background: white;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 700px;
+}
+
+/* Tracing Progress */
+.tracing-progress {
+  background-color: #D7F9FF;
+}
+
+.tracing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 15px;
+  justify-items: center;
+}
+
+.tracing-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  width: 90px;
+  text-align: center;
+}
+
+.letter {
+  font-size: 22px;
+  color: #0277BD;
+  font-weight: bold;
+}
+
+/* Circular Progress */
+.circle-progress {
+  position: relative;
+}
+
+.bg-circle {
+  fill: none;
+  stroke: #ddd;
+}
+
+.fg-circle {
+  fill: none;
+  stroke: #0277BD;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s;
+}
+
+/* Game Progress */
+.game-progress {
+  background-color: #FFF9C4;
+}
+
+.game-grid {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.game-card {
+  background: #FFECB3;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Achievements */
+.achievements-section {
+  background-color: #E8F5E9;
+}
+
+.badge {
+  font-size: 18px;
+  margin: 10px;
+}
+
+/* Home Button */
+.home-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #42A5F5;
+  color: white;
+  font-size: 18px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.home-button:hover {
+  background: #1E88E5;
+}

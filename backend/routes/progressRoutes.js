@@ -1,10 +1,11 @@
 const express = require('express');
-const { getProgress } = require('../controllers/progressController');
-const { protect } = require('../middleware/authMiddleware');
-
 const router = express.Router();
 
-// Get User Progress
-router.get('/', protect, getProgress);
+const { getProgressByLetter, getGameProgress } = require('../controllers/progressController');
+
+router.get('/:letter', getProgressByLetter);
+router.get("/progress/games", getGameProgress); // New route for game progress
+// Update game progress
+//router.post("/:gameName", updateGameProgress);
 
 module.exports = router;

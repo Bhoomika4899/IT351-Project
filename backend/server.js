@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const tracingRoutes = require('./routes/tracingRoutes');
-const gameRoutes = require('./routes/gameRoutes');
+const gameProgressRoutes = require('./routes/gameProgressRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const pythonRoutes = require('./routes/pythonRoutes'); // Add python routes
 
@@ -30,7 +30,7 @@ app.use(express.json());
 // ROUTES
 app.use('/api/auth', authRoutes);          // User Registration & Login
 app.use('/api/tracing', tracingRoutes);    // Tracing Data APIs
-app.use('/api/games', gameRoutes);         // Game Data APIs
+app.use('/api/games', gameProgressRoutes);         // Game Data APIs
 app.use('/api/progress', progressRoutes);  // Progress APIs
 app.use('/api', pythonRoutes);             // Register python routes
 

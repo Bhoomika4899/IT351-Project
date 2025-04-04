@@ -21,3 +21,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Ignore large dataset archives
+public/DevanagariDataset/*.rar
+
+# Ignore Keras and model files
+backend/ml/*.h5
+backend/ml/*.keras

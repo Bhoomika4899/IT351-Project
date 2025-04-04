@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 const hindiAlphabets = [
   "अ", "आ", "इ", "ई", "उ", "ऊ", "ऋ", "ए", "ऐ", "ओ", "औ", "अं", "अः",
-  "क", "ख", "ग", "घ", "ङ", "च", "छ", "ज", "झ", "ञ", "ट", "ठ", "ड", "ढ", "ण", 
-  "त", "थ", "द", "ध", "न", "प", "फ", "ब", "भ", "म", "य", "र", "ल", "व", "श", 
+  "क", "ख", "ग", "घ", "ङ", "च", "छ", "ज", "झ", "ञ", "ट", "ठ", "ड", "ढ", "ण",
+  "त", "थ", "द", "ध", "न", "प", "फ", "ब", "भ", "म", "य", "र", "ल", "व", "श",
   "ष", "स", "ह", "क्ष", "त्र", "ज्ञ", "श्र", "ड़", "ढ़"
 ];
 
@@ -15,12 +16,38 @@ const MemoryMatch = () => {
   const [cards, setCards] = useState([]);
   const [selectedCards, setSelectedCards] = useState([]);
   const [matchedPairs, setMatchedPairs] = useState([]);
+  const [score, setScore] = useState(0); // Track completed sets
+
+  useEffect(() => {
+    fetchGameProgress();
+  }, []);
+
+  // Fetch game progress from API
+  const fetchGameProgress = async () => {
+    try {
+      const response = await axios.get("/api/games/MemoryMatch");
+      setScore(response.data.correct_attempts); // Both total_attempts and correct_attempts are the same
+    } catch (error) {
+      console.error("Error fetching game progress:", error);
+    }
+  };
 
   useEffect(() => {
     generateNewSet();
   }, []);
 
-  const generateNewSet = () => {
+  const generateNewSet = async () => {
+    if (matchedPairs.length === 8) {
+      // Update progress in the backend
+      try {
+        await axios.post("/api/games/MemoryMatch", { correct: true });
+        setScore((prevScore) => prevScore + 1); // Update local state
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+    }
+
+    // Generate new card set
     const selectedLetters = shuffleArray([...hindiAlphabets]).slice(0, 4);
     const letterCards = selectedLetters.map((letter) => ({ type: "letter", value: letter }));
     const imageCards = selectedLetters.map((letter) => ({ type: "image", value: letter }));
@@ -63,6 +90,12 @@ const MemoryMatch = () => {
       >
         🧠 Memory Match: Letters & Images!
       </motion.h1>
+
+      {/* Display Score */}
+      <motion.p style={styles.scoreText}>
+        🎯 Completed Sets: {score}
+      </motion.p>
+
       <div style={styles.grid}>
         {cards.map((card, index) => (
           <motion.div
@@ -95,11 +128,13 @@ const MemoryMatch = () => {
           </motion.div>
         ))}
       </div>
+
       {matchedPairs.length === 8 && (
         <motion.button style={styles.newSetButton} onClick={generateNewSet} whileTap={{ scale: 0.9 }}>
           🎉 New Set!
         </motion.button>
       )}
+
       <Link to="/games" style={styles.homeButton}>🔙 Back to Games</Link>
     </motion.div>
   );
@@ -121,6 +156,12 @@ const styles = {
     color: "#0288D1",
     fontWeight: "bold",
     marginBottom: "20px",
+  },
+  scoreText: {
+    fontSize: "1.5rem",
+    color: "#00796B",
+    fontWeight: "bold",
+    marginBottom: "15px",
   },
   grid: {
     display: "grid",

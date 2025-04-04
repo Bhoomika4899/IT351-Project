@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Howl } from "howler";
+import axios from "axios"; // Import axios for API calls
 
 // Hindi alphabet list
 const hindiAlphabets = [
@@ -23,6 +24,22 @@ const SoundMatch = () => {
   const [options, setOptions] = useState([]);
   const [correctIndex, setCorrectIndex] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [score, setScore] = useState(0); // Track user's score
+
+  // Load game progress when the component mounts
+  useEffect(() => {
+    fetchGameProgress();
+  }, []);
+
+  // Fetch game progress from API
+  const fetchGameProgress = async () => {
+    try {
+      const response = await axios.get("/api/games/SoundMatch");
+      setScore(response.data.correct_attempts); // ✅ Correct field
+    } catch (error) {
+      console.error("Error fetching game progress:", error);
+    }
+  };
 
   // Load new question on mount or change
   useEffect(() => {
@@ -49,9 +66,20 @@ const SoundMatch = () => {
   };
 
   // Handle option selection
-  const handleOptionClick = (selectedIndex) => {
+  const handleOptionClick = async (selectedIndex) => {
     if (selectedIndex === correctIndex) {
       setFeedback("✅ Correct! Great Job!");
+      setScore((prevScore) => prevScore + 1); // Increase local score
+
+      // Send progress update to backend
+      try {
+        await axios.post("/api/games/SoundMatch", {
+          correct: selectedIndex === correctIndex, // ✅ Send correct: true/false
+        });
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+
       setTimeout(() => {
         setFeedback("");
         nextAlphabet();
@@ -77,6 +105,11 @@ const SoundMatch = () => {
       >
         🎧 Match the Sound!
       </motion.h1>
+
+      {/* Display Current Score */}
+      <motion.p style={styles.scoreText}>
+        🎯 Score: {score}
+      </motion.p>
 
       <motion.div
         style={styles.soundButton}
@@ -133,6 +166,12 @@ const styles = {
     color: "#FF5722",
     fontWeight: "bold",
     marginBottom: "20px",
+  },
+  scoreText: {
+    fontSize: "1.5rem",
+    color: "#00796B",
+    fontWeight: "bold",
+    marginBottom: "15px",
   },
   soundButton: {
     backgroundColor: "#FF4081",

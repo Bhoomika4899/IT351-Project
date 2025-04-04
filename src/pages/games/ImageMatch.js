@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios"; // Import axios for API calls
 
 // Hindi alphabet list
 const hindiAlphabets = [
@@ -12,23 +13,35 @@ const hindiAlphabets = [
   "ड़", "ढ़"
 ];
 
-// Shuffle function to randomize options
-const shuffleArray = (array) => {
-  return array.sort(() => Math.random() - 0.5);
-};
+// Shuffle function
+const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
 
 const ImageMatch = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [options, setOptions] = useState([]);
   const [correctIndex, setCorrectIndex] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [score, setScore] = useState(0); // Track score
 
-  // Load new question on mount or change
+  // Fetch game progress when component mounts
+  useEffect(() => {
+    fetchGameProgress();
+  }, []);
+
+  // Fetch progress from API
+  const fetchGameProgress = async () => {
+    try {
+      const response = await axios.get("/api/games/ImageMatch");
+      setScore(response.data.correct_attempts); // ✅ Correct field
+    } catch (error) {
+      console.error("Error fetching game progress:", error);
+    }
+  };
+
   useEffect(() => {
     generateNewQuestion();
   }, [currentIndex]);
 
-  // Generate a new question
   const generateNewQuestion = () => {
     const correctAlphabet = hindiAlphabets[currentIndex];
     const incorrectOptions = shuffleArray(
@@ -39,26 +52,45 @@ const ImageMatch = () => {
     setCorrectIndex(newOptions.indexOf(correctAlphabet));
   };
 
-  // Get image path for current alphabet
+  // Get image path
   const getImagePath = (index) => {
     return `/hindi_alphabet_image/hindi_letter_${index}.png`;
   };
 
-  // Handle option selection
-  const handleOptionClick = (selectedIndex) => {
-    if (selectedIndex === correctIndex) {
+  // Handle answer selection
+  const handleOptionClick = async (selectedIndex) => {
+    const isCorrect = selectedIndex === correctIndex;
+
+    if (isCorrect) {
       setFeedback("✅ Correct! Great Job!");
+      setScore((prevScore) => prevScore + 1); // Update local score
+
+      // Send progress to backend
+      try {
+        await axios.post("/api/games/ImageMatch", { correct: true });
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+
       setTimeout(() => {
         setFeedback("");
         nextAlphabet();
       }, 1000);
     } else {
       setFeedback("❌ Oops! Try again.");
+
+      // Send incorrect attempt to backend
+      try {
+        await axios.post("/api/games/ImageMatch", { correct: false });
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+
       setTimeout(() => setFeedback(""), 800);
     }
   };
 
-  // Go to the next alphabet
+  // Go to next alphabet
   const nextAlphabet = () => {
     setCurrentIndex((prev) => (prev + 1) % hindiAlphabets.length);
   };
@@ -73,6 +105,11 @@ const ImageMatch = () => {
       >
         🧩 Match the Alphabet to the Image!
       </motion.h1>
+
+      {/* Display Score */}
+      <motion.p style={styles.scoreText}>
+        🎯 Score: {score}
+      </motion.p>
 
       {/* Display Image */}
       <motion.img
@@ -133,6 +170,12 @@ const styles = {
     color: "#4CAF50",
     fontWeight: "bold",
     marginBottom: "20px",
+  },
+  scoreText: {
+    fontSize: "1.5rem",
+    color: "#00796B",
+    fontWeight: "bold",
+    marginBottom: "15px",
   },
   image: {
     width: "200px",

@@ -10,20 +10,6 @@ axios.defaults.baseURL = "http://localhost:5000";
 
 // Data
 const alphabets = [
-  { letter: "अ", image: "/hindi_alphabet_image/hindi_letter_1.png", sound: "/hindi_alphabet_audio/hindi_letter_1.mp3" },
-  { letter: "आ", image: "/hindi_alphabet_image/hindi_letter_2.png", sound: "/hindi_alphabet_audio/hindi_letter_2.mp3" },
-  { letter: "इ", image: "/hindi_alphabet_image/hindi_letter_3.png", sound: "/hindi_alphabet_audio/hindi_letter_3.mp3" },
-  { letter: "ई", image: "/hindi_alphabet_image/hindi_letter_4.png", sound: "/hindi_alphabet_audio/hindi_letter_4.mp3" },
-  { letter: "उ", image: "/hindi_alphabet_image/hindi_letter_5.png", sound: "/hindi_alphabet_audio/hindi_letter_5.mp3" },
-  { letter: "ऊ", image: "/hindi_alphabet_image/hindi_letter_6.png", sound: "/hindi_alphabet_audio/hindi_letter_6.mp3" },
-  { letter: "ऋ", image: "/hindi_alphabet_image/hindi_letter_7.png", sound: "/hindi_alphabet_audio/hindi_letter_7.mp3" },
-  { letter: "ए", image: "/hindi_alphabet_image/hindi_letter_8.png", sound: "/hindi_alphabet_audio/hindi_letter_8.mp3" },
-  { letter: "ऐ", image: "/hindi_alphabet_image/hindi_letter_9.png", sound: "/hindi_alphabet_audio/hindi_letter_9.mp3" },
-  { letter: "ओ", image: "/hindi_alphabet_image/hindi_letter_10.png", sound: "/hindi_alphabet_audio/hindi_letter_10.mp3" },
-  { letter: "औ", image: "/hindi_alphabet_image/hindi_letter_11.png", sound: "/hindi_alphabet_audio/hindi_letter_11.mp3" },
-  { letter: "अं", image: "/hindi_alphabet_image/hindi_letter_12.png", sound: "/hindi_alphabet_audio/hindi_letter_12.mp3" },
-  { letter: "अः", image: "/hindi_alphabet_image/hindi_letter_13.png", sound: "/hindi_alphabet_audio/hindi_letter_13.mp3" },
-
   { letter: "क", image: "/hindi_alphabet_image/hindi_letter_14.png", sound: "/hindi_alphabet_audio/hindi_letter_14.mp3" },
   { letter: "ख", image: "/hindi_alphabet_image/hindi_letter_15.png", sound: "/hindi_alphabet_audio/hindi_letter_15.mp3" },
   { letter: "ग", image: "/hindi_alphabet_image/hindi_letter_16.png", sound: "/hindi_alphabet_audio/hindi_letter_16.mp3" },
@@ -66,10 +52,8 @@ const alphabets = [
   { letter: "क्ष", image: "/hindi_alphabet_image/hindi_letter_47.png", sound: "/hindi_alphabet_audio/hindi_letter_47.mp3" },
   { letter: "त्र", image: "/hindi_alphabet_image/hindi_letter_48.png", sound: "/hindi_alphabet_audio/hindi_letter_48.mp3" },
   { letter: "ज्ञ", image: "/hindi_alphabet_image/hindi_letter_49.png", sound: "/hindi_alphabet_audio/hindi_letter_49.mp3" },
-  { letter: "श्र", image: "/hindi_alphabet_image/hindi_letter_50.png", sound: "/hindi_alphabet_audio/hindi_letter_50.mp3" },
 
-  { letter: "ड़", image: "/hindi_alphabet_image/hindi_letter_51.png", sound: "/hindi_alphabet_audio/hindi_letter_51.mp3" },
-  { letter: "ढ़", image: "/hindi_alphabet_image/hindi_letter_52.png", sound: "/hindi_alphabet_audio/hindi_letter_52.mp3" }
+
 
 ];
 
@@ -104,45 +88,192 @@ const Tracing = () => {
   };
 
   // Save Tracing Data
+  //const saveTracingData = async (deviationScore, isCorrect) => {
+  //  console.log(
+  //    `📚 Saving data: Letter: ${currentAlphabet.letter}, Deviation: ${deviationScore}, Correct: ${isCorrect}`
+  //  );
+  //  const currentProgress = progress[currentAlphabet.letter] || {
+  //    attempts: 0,
+  //    correct_attempts: 0,
+  //  };
+
+  //  try {
+  //    console.log("Sending data to backend...");
+  //    await axios.post("/api/tracing/save", {
+  //      letter: currentAlphabet.letter,
+  //      deviation_score: deviationScore, // Placeholder for now
+  //      attempts: currentProgress.attempts + 1,
+  //      correct_attempts: isCorrect ? currentProgress.correct_attempts + 1 : currentProgress.correct_attempts,
+  //      //correct_attempts: isCorrect ? 1 : 0, // ✅ Correctly set based on prediction
+  //      //isCorrect, // ✅ Add this to avoid undefined issue
+  //    });
+  //    fetchProgress();
+  //    console.log("Data sent successfully!");
+  //  } catch (error) {
+  //    console.error("Failed to save tracing data.", error);
+  //  }
+  //};
+
+
   const saveTracingData = async (deviationScore, isCorrect) => {
     console.log(
       `📚 Saving data: Letter: ${currentAlphabet.letter}, Deviation: ${deviationScore}, Correct: ${isCorrect}`
     );
-    const currentProgress = progress[currentAlphabet.letter] || {
-      attempts: 0,
-      correct_attempts: 0,
-    };
-
+  
     try {
       console.log("Sending data to backend...");
       await axios.post("/api/tracing/save", {
         letter: currentAlphabet.letter,
-        deviation_score: deviationScore, // Placeholder for now
-        attempts: currentProgress.attempts + 1,
-        correct_attempts: isCorrect ? currentProgress.correct_attempts + 1 : currentProgress.correct_attempts,
-        //correct_attempts: isCorrect ? 1 : 0, // ✅ Correctly set based on prediction
-        //isCorrect, // ✅ Add this to avoid undefined issue
+        deviation_score: deviationScore,
+        isCorrect, // Let backend handle counting properly
       });
+  
+      // ✅ Fetch progress again (only if needed)
       fetchProgress();
-      console.log("Data sent successfully!");
+  
+      console.log("✅ Data sent successfully!!");
     } catch (error) {
-      console.error("Failed to save tracing data.", error);
+      console.error("❌ Failed to save tracing data.", error);
     }
   };
+  
+  
+  
+  
+  
+  
+  
 
   // Convert Canvas Data to Base64 for CNN
+//const getCanvasData = () => {
+//  if (canvasRef.current) {
+//    const canvasData = canvasRef.current.getSaveData();
+//    console.log("🖼️ Canvas Data:", canvasData.slice(0, 50)); // Print first 50 chars for debug
+//    const canvasElement = document.createElement("canvas");
+//    const ctx = canvasElement.getContext("2d");
+//    const img = new Image();
+//    img.src = canvasRef.current.canvasContainer.childNodes[1].toDataURL(); // Get the drawing as image data
+//    return img.src.replace("data:image/png;base64,", ""); // Send only base64 data
+//  }
+//  return null;
+//};
+
+const [previewImage, setPreviewImage] = useState(null); // State for preview
+
 const getCanvasData = () => {
-  if (canvasRef.current) {
-    const canvasData = canvasRef.current.getSaveData();
-    console.log("🖼️ Canvas Data:", canvasData.slice(0, 50)); // Print first 50 chars for debug
-    const canvasElement = document.createElement("canvas");
-    const ctx = canvasElement.getContext("2d");
-    const img = new Image();
-    img.src = canvasRef.current.canvasContainer.childNodes[1].toDataURL(); // Get the drawing as image data
-    return img.src.replace("data:image/png;base64,", ""); // Send only base64 data
+  if (!canvasRef.current) return null;
+
+  const originalCanvas = canvasRef.current.canvasContainer.childNodes[1]; // Get the actual drawing canvas
+  const originalCtx = originalCanvas.getContext("2d");
+
+  // Get Image Data
+  const imageData = originalCtx.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
+  const pixels = imageData.data;
+
+  let minX = originalCanvas.width, minY = originalCanvas.height, maxX = 0, maxY = 0;
+  let hasDrawing = false;
+
+  for (let y = 0; y < originalCanvas.height; y++) {
+    for (let x = 0; x < originalCanvas.width; x++) {
+      const index = (y * originalCanvas.width + x) * 4;
+      const alpha = pixels[index + 3];
+
+      if (alpha > 0) { // Check if pixel is part of the stroke
+        hasDrawing = true;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
   }
-  return null;
+
+  if (!hasDrawing) {
+    console.warn("❌ No valid strokes detected!");
+    return null;
+  }
+
+  const width = maxX - minX;
+  const height = maxY - minY;
+
+  // Create a cropped canvas
+  const croppedCanvas = document.createElement("canvas");
+  const croppedCtx = croppedCanvas.getContext("2d");
+  croppedCanvas.width = width;
+  croppedCanvas.height = height;
+  croppedCtx.putImageData(imageData, -minX, -minY);
+
+  // Apply Gaussian Blur or Anti-Aliasing to reduce jagged edges
+  croppedCtx.filter = 'blur(1px)'; // Apply a mild blur
+  croppedCtx.drawImage(croppedCanvas, 0, 0, width, height, 0, 0, width, height);
+  
+  // Create a high-res canvas for smooth filling
+  const highResCanvas = document.createElement("canvas");
+  const highResCtx = highResCanvas.getContext("2d");
+  highResCanvas.width = 256;
+  highResCanvas.height = 256;
+
+  // Set black background
+  highResCtx.fillStyle = "black";
+  highResCtx.fillRect(0, 0, 256, 256);
+
+  // Draw the cropped (smoothed) image onto the high-res canvas
+  highResCtx.drawImage(croppedCanvas, 0, 0, width, height, 0, 0, 256, 256);
+
+  // Apply Thresholding (softening)
+  const highResImageData = highResCtx.getImageData(0, 0, 256, 256);
+  const highResPixels = highResImageData.data;
+
+  // Soft thresholding for smooth transition
+  for (let i = 0; i < highResPixels.length; i += 4) {
+    const r = highResPixels[i];
+    const g = highResPixels[i + 1];
+    const b = highResPixels[i + 2];
+    const avg = (r + g + b) / 3;
+    
+    // Gradually transition between black and white (no harsh thresholds)
+    if (avg > 150) {
+      highResPixels[i] = 255;   // R
+      highResPixels[i + 1] = 255; // G
+      highResPixels[i + 2] = 255; // B
+      highResPixels[i + 3] = 255; // A (fully visible)
+    } else if (avg > 50) {
+      // Apply a smooth gradient from black to white for the middle range
+      const blend = (avg - 50) / 100;
+      highResPixels[i] = 255 * blend;   // R
+      highResPixels[i + 1] = 255 * blend; // G
+      highResPixels[i + 2] = 255 * blend; // B
+      highResPixels[i + 3] = 255; // A (fully visible)
+    } else {
+      highResPixels[i] = 0;   // R
+      highResPixels[i + 1] = 0; // G
+      highResPixels[i + 2] = 0; // B
+      highResPixels[i + 3] = 255; // A (fully visible)
+    }
+  }
+
+  // Put the processed image back onto the high-res canvas
+  highResCtx.putImageData(highResImageData, 0, 0);
+
+  // Final downscale to 32x32
+  const finalCanvas = document.createElement("canvas");
+  const finalCtx = finalCanvas.getContext("2d");
+  finalCanvas.width = 32;
+  finalCanvas.height = 32;
+  finalCtx.imageSmoothingEnabled = true;
+  finalCtx.drawImage(highResCanvas, 0, 0, 256, 256, 0, 0, 32, 32);
+
+  // Convert to Base64
+  const base64Image = finalCanvas.toDataURL("image/png");
+  setPreviewImage(base64Image);
+
+  return base64Image.replace("data:image/png;base64,", "");
 };
+
+
+
+
+
 
 
   // Handle Tracing Submission
@@ -242,7 +373,7 @@ const handleSubmit = async () => {
           <CanvasDraw
             ref={canvasRef}
             brushColor="#FF4081"
-            brushRadius={10}
+            brushRadius={2}
             lazyRadius={2}
             canvasWidth={300}
             canvasHeight={300}
@@ -269,6 +400,15 @@ const handleSubmit = async () => {
 
       {/* Home Button */}
       <Link to="/" style={styles.homeButton}>🏠 Home</Link>
+
+      {previewImage && (
+  <div style={{ marginTop: "10px", textAlign: "center" }}>
+    <h3>Preview</h3>
+    <img src={previewImage} alt="Captured Tracing" style={{ border: "2px solid black", width: "64px", height: "64px" }} />
+  </div>
+)}
+
+
     </div>
   );
 };
