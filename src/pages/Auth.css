@@ -1,0 +1,90 @@
+/* src/Auth.css */  
+
+body {  
+    margin: 0;  
+    padding: 0;  
+    background: linear-gradient(135deg, #FFCCFF, #99CCFF);  
+}  
+
+.auth-container {  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    min-height: 100vh;  
+}  
+
+.auth-box {  
+    background: white;  
+    padding: 20px;  
+    border-radius: 15px;  
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  
+    width: 350px;  
+    text-align: center;  
+}  
+
+.auth-title {  
+    font-size: 24px;  
+    margin-bottom: 16px;  
+    color: #5D3FD3;  
+}  
+
+.error-message {  
+    color: red;  
+}  
+
+.welcome-message {  
+    color: green;  
+}  
+
+.input-group {  
+    margin-bottom: 20px;  
+}  
+
+.auth-input {  
+    width: 100%;  
+    padding: 10px;  
+    border: 2px solid #5D3FD3;  
+    border-radius: 25px;  
+    margin-bottom: 10px;  
+    font-size: 16px;  
+}  
+
+.button-group {  
+    display: flex;  
+    flex-direction: column;  
+    gap: 10px;  
+}  
+
+.auth-button {  
+    padding: 10px;  
+    border: none;  
+    border-radius: 25px;  
+    color: white;  
+    font-size: 16px;  
+    cursor: pointer;  
+    transition: background-color 0.3s;  
+}  
+
+.signup-button {  
+    background-color: #FF6F61;  
+}  
+
+.login-button {  
+    background-color: #4CAF50;  
+}  
+
+.logout-button {  
+    background-color: #F44336;  
+}  
+
+.signup-button:hover {  
+    background-color: #FF8A8A;  
+}  
+
+.login-button:hover {  
+    background-color: #66BB6A;  
+}  
+
+.logout-button:hover {  
+    background-color: #EF5350;  
+}  

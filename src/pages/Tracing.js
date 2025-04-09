@@ -4,78 +4,167 @@ import { motion } from "framer-motion";
 import { Howl } from "howler";
 import CanvasDraw from "react-canvas-draw";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios"; // Import Axios for API calls
 axios.defaults.baseURL = "http://localhost:5000";
 
-
 // Data
 const alphabets = [
-  { letter: "क", image: "/hindi_alphabet_image/hindi_letter_14.png", sound: "/hindi_alphabet_audio/hindi_letter_14.mp3" },
-  { letter: "ख", image: "/hindi_alphabet_image/hindi_letter_15.png", sound: "/hindi_alphabet_audio/hindi_letter_15.mp3" },
-  { letter: "ग", image: "/hindi_alphabet_image/hindi_letter_16.png", sound: "/hindi_alphabet_audio/hindi_letter_16.mp3" },
-  { letter: "घ", image: "/hindi_alphabet_image/hindi_letter_17.png", sound: "/hindi_alphabet_audio/hindi_letter_17.mp3" },
-  { letter: "ङ", image: "/hindi_alphabet_image/hindi_letter_18.png", sound: "/hindi_alphabet_audio/hindi_letter_18.mp3" },
+  { letter: "अ", image: "/hindi_alphabet_image/hindi_letter_1.png", sound: "/hindi_word_audio/hindi_word_1.mp3" },
+  { letter: "आ", image: "/hindi_alphabet_image/hindi_letter_2.png", sound: "/hindi_word_audio/hindi_word_2.mp3" },
+  { letter: "इ", image: "/hindi_alphabet_image/hindi_letter_3.png", sound: "/hindi_word_audio/hindi_word_3.mp3" },
+  { letter: "ई", image: "/hindi_alphabet_image/hindi_letter_4.png", sound: "/hindi_word_audio/hindi_word_4.mp3" },
+  { letter: "उ", image: "/hindi_alphabet_image/hindi_letter_5.png", sound: "/hindi_word_audio/hindi_word_5.mp3" },
+  { letter: "ऊ", image: "/hindi_alphabet_image/hindi_letter_6.png", sound: "/hindi_word_audio/hindi_word_6.mp3" },
+  { letter: "ऋ", image: "/hindi_alphabet_image/hindi_letter_7.png", sound: "/hindi_word_audio/hindi_word_7.mp3" },
+  { letter: "ए", image: "/hindi_alphabet_image/hindi_letter_8.png", sound: "/hindi_word_audio/hindi_word_8.mp3" },
+  { letter: "ऐ", image: "/hindi_alphabet_image/hindi_letter_9.png", sound: "/hindi_word_audio/hindi_word_9.mp3" },
+  { letter: "ओ", image: "/hindi_alphabet_image/hindi_letter_10.png", sound: "/hindi_word_audio/hindi_word_10.mp3" },
+  { letter: "औ", image: "/hindi_alphabet_image/hindi_letter_11.png", sound: "/hindi_word_audio/hindi_word_11.mp3" },
+  { letter: "अं", image: "/hindi_alphabet_image/hindi_letter_12.png", sound: "/hindi_word_audio/hindi_word_12.mp3" },
+  { letter: "अः", image: "/hindi_alphabet_image/hindi_letter_13.png", sound: "/hindi_word_audio/hindi_word_13.mp3" },
 
-  { letter: "च", image: "/hindi_alphabet_image/hindi_letter_19.png", sound: "/hindi_alphabet_audio/hindi_letter_19.mp3" },
-  { letter: "छ", image: "/hindi_alphabet_image/hindi_letter_20.png", sound: "/hindi_alphabet_audio/hindi_letter_20.mp3" },
-  { letter: "ज", image: "/hindi_alphabet_image/hindi_letter_21.png", sound: "/hindi_alphabet_audio/hindi_letter_21.mp3" },
-  { letter: "झ", image: "/hindi_alphabet_image/hindi_letter_22.png", sound: "/hindi_alphabet_audio/hindi_letter_22.mp3" },
-  { letter: "ञ", image: "/hindi_alphabet_image/hindi_letter_23.png", sound: "/hindi_alphabet_audio/hindi_letter_23.mp3" },
+  { letter: "क", image: "/hindi_alphabet_image/hindi_letter_14.png", sound: "/hindi_word_audio/hindi_word_14.mp3" },
+  { letter: "ख", image: "/hindi_alphabet_image/hindi_letter_15.png", sound: "/hindi_word_audio/hindi_word_15.mp3" },
+  { letter: "ग", image: "/hindi_alphabet_image/hindi_letter_16.png", sound: "/hindi_word_audio/hindi_word_16.mp3" },
+  { letter: "घ", image: "/hindi_alphabet_image/hindi_letter_17.png", sound: "/hindi_word_audio/hindi_word_17.mp3" },
+  { letter: "ङ", image: "/hindi_alphabet_image/hindi_letter_18.png", sound: "/hindi_word_audio/hindi_word_18.mp3" },
 
-  { letter: "ट", image: "/hindi_alphabet_image/hindi_letter_24.png", sound: "/hindi_alphabet_audio/hindi_letter_24.mp3" },
-  { letter: "ठ", image: "/hindi_alphabet_image/hindi_letter_25.png", sound: "/hindi_alphabet_audio/hindi_letter_25.mp3" },
-  { letter: "ड", image: "/hindi_alphabet_image/hindi_letter_26.png", sound: "/hindi_alphabet_audio/hindi_letter_26.mp3" },
-  { letter: "ढ", image: "/hindi_alphabet_image/hindi_letter_27.png", sound: "/hindi_alphabet_audio/hindi_letter_27.mp3" },
-  { letter: "ण", image: "/hindi_alphabet_image/hindi_letter_28.png", sound: "/hindi_alphabet_audio/hindi_letter_28.mp3" },
+  { letter: "च", image: "/hindi_alphabet_image/hindi_letter_19.png", sound: "/hindi_word_audio/hindi_word_19.mp3" },
+  { letter: "छ", image: "/hindi_alphabet_image/hindi_letter_20.png", sound: "/hindi_word_audio/hindi_word_20.mp3" },
+  { letter: "ज", image: "/hindi_alphabet_image/hindi_letter_21.png", sound: "/hindi_word_audio/hindi_word_21.mp3" },
+  { letter: "झ", image: "/hindi_alphabet_image/hindi_letter_22.png", sound: "/hindi_word_audio/hindi_word_22.mp3" },
+  { letter: "ञ", image: "/hindi_alphabet_image/hindi_letter_23.png", sound: "/hindi_word_audio/hindi_word_23.mp3" },
 
-  { letter: "त", image: "/hindi_alphabet_image/hindi_letter_29.png", sound: "/hindi_alphabet_audio/hindi_letter_29.mp3" },
-  { letter: "थ", image: "/hindi_alphabet_image/hindi_letter_30.png", sound: "/hindi_alphabet_audio/hindi_letter_30.mp3" },
-  { letter: "द", image: "/hindi_alphabet_image/hindi_letter_31.png", sound: "/hindi_alphabet_audio/hindi_letter_31.mp3" },
-  { letter: "ध", image: "/hindi_alphabet_image/hindi_letter_32.png", sound: "/hindi_alphabet_audio/hindi_letter_32.mp3" },
-  { letter: "न", image: "/hindi_alphabet_image/hindi_letter_33.png", sound: "/hindi_alphabet_audio/hindi_letter_33.mp3" },
+  { letter: "ट", image: "/hindi_alphabet_image/hindi_letter_24.png", sound: "/hindi_word_audio/hindi_word_24.mp3" },
+  { letter: "ठ", image: "/hindi_alphabet_image/hindi_letter_25.png", sound: "/hindi_word_audio/hindi_word_25.mp3" },
+  { letter: "ड", image: "/hindi_alphabet_image/hindi_letter_26.png", sound: "/hindi_word_audio/hindi_word_26.mp3" },
+  { letter: "ढ", image: "/hindi_alphabet_image/hindi_letter_27.png", sound: "/hindi_word_audio/hindi_word_27.mp3" },
+  { letter: "ण", image: "/hindi_alphabet_image/hindi_letter_28.png", sound: "/hindi_word_audio/hindi_word_28.mp3" },
 
-  { letter: "प", image: "/hindi_alphabet_image/hindi_letter_34.png", sound: "/hindi_alphabet_audio/hindi_letter_34.mp3" },
-  { letter: "फ", image: "/hindi_alphabet_image/hindi_letter_35.png", sound: "/hindi_alphabet_audio/hindi_letter_35.mp3" },
-  { letter: "ब", image: "/hindi_alphabet_image/hindi_letter_36.png", sound: "/hindi_alphabet_audio/hindi_letter_36.mp3" },
-  { letter: "भ", image: "/hindi_alphabet_image/hindi_letter_37.png", sound: "/hindi_alphabet_audio/hindi_letter_37.mp3" },
-  { letter: "म", image: "/hindi_alphabet_image/hindi_letter_38.png", sound: "/hindi_alphabet_audio/hindi_letter_38.mp3" },
+  { letter: "त", image: "/hindi_alphabet_image/hindi_letter_29.png", sound: "/hindi_word_audio/hindi_word_29.mp3" },
+  { letter: "थ", image: "/hindi_alphabet_image/hindi_letter_30.png", sound: "/hindi_word_audio/hindi_word_30.mp3" },
+  { letter: "द", image: "/hindi_alphabet_image/hindi_letter_31.png", sound: "/hindi_word_audio/hindi_word_31.mp3" },
+  { letter: "ध", image: "/hindi_alphabet_image/hindi_letter_32.png", sound: "/hindi_word_audio/hindi_word_32.mp3" },
+  { letter: "न", image: "/hindi_alphabet_image/hindi_letter_33.png", sound: "/hindi_word_audio/hindi_word_33.mp3" },
 
-  { letter: "य", image: "/hindi_alphabet_image/hindi_letter_39.png", sound: "/hindi_alphabet_audio/hindi_letter_39.mp3" },
-  { letter: "र", image: "/hindi_alphabet_image/hindi_letter_40.png", sound: "/hindi_alphabet_audio/hindi_letter_40.mp3" },
-  { letter: "ल", image: "/hindi_alphabet_image/hindi_letter_41.png", sound: "/hindi_alphabet_audio/hindi_letter_41.mp3" },
-  { letter: "व", image: "/hindi_alphabet_image/hindi_letter_42.png", sound: "/hindi_alphabet_audio/hindi_letter_42.mp3" },
+  { letter: "प", image: "/hindi_alphabet_image/hindi_letter_34.png", sound: "/hindi_word_audio/hindi_word_34.mp3" },
+  { letter: "फ", image: "/hindi_alphabet_image/hindi_letter_35.png", sound: "/hindi_word_audio/hindi_word_35.mp3" },
+  { letter: "ब", image: "/hindi_alphabet_image/hindi_letter_36.png", sound: "/hindi_word_audio/hindi_word_36.mp3" },
+  { letter: "भ", image: "/hindi_alphabet_image/hindi_letter_37.png", sound: "/hindi_word_audio/hindi_word_37.mp3" },
+  { letter: "म", image: "/hindi_alphabet_image/hindi_letter_38.png", sound: "/hindi_word_audio/hindi_word_38.mp3" },
 
-  { letter: "श", image: "/hindi_alphabet_image/hindi_letter_43.png", sound: "/hindi_alphabet_audio/hindi_letter_43.mp3" },
-  { letter: "ष", image: "/hindi_alphabet_image/hindi_letter_44.png", sound: "/hindi_alphabet_audio/hindi_letter_44.mp3" },
-  { letter: "स", image: "/hindi_alphabet_image/hindi_letter_45.png", sound: "/hindi_alphabet_audio/hindi_letter_45.mp3" },
-  { letter: "ह", image: "/hindi_alphabet_image/hindi_letter_46.png", sound: "/hindi_alphabet_audio/hindi_letter_46.mp3" },
-  { letter: "क्ष", image: "/hindi_alphabet_image/hindi_letter_47.png", sound: "/hindi_alphabet_audio/hindi_letter_47.mp3" },
-  { letter: "त्र", image: "/hindi_alphabet_image/hindi_letter_48.png", sound: "/hindi_alphabet_audio/hindi_letter_48.mp3" },
-  { letter: "ज्ञ", image: "/hindi_alphabet_image/hindi_letter_49.png", sound: "/hindi_alphabet_audio/hindi_letter_49.mp3" },
+  { letter: "य", image: "/hindi_alphabet_image/hindi_letter_39.png", sound: "/hindi_word_audio/hindi_word_39.mp3" },
+  { letter: "र", image: "/hindi_alphabet_image/hindi_letter_40.png", sound: "/hindi_word_audio/hindi_word_40.mp3" },
+  { letter: "ल", image: "/hindi_alphabet_image/hindi_letter_41.png", sound: "/hindi_word_audio/hindi_word_41.mp3" },
+  { letter: "व", image: "/hindi_alphabet_image/hindi_letter_42.png", sound: "/hindi_word_audio/hindi_word_42.mp3" },
 
+  { letter: "श", image: "/hindi_alphabet_image/hindi_letter_43.png", sound: "/hindi_word_audio/hindi_word_43.mp3" },
+  { letter: "ष", image: "/hindi_alphabet_image/hindi_letter_44.png", sound: "/hindi_word_audio/hindi_word_44.mp3" },
+  { letter: "स", image: "/hindi_alphabet_image/hindi_letter_45.png", sound: "/hindi_word_audio/hindi_word_45.mp3" },
+  { letter: "ह", image: "/hindi_alphabet_image/hindi_letter_46.png", sound: "/hindi_word_audio/hindi_word_46.mp3" },
+  { letter: "क्ष", image: "/hindi_alphabet_image/hindi_letter_47.png", sound: "/hindi_word_audio/hindi_word_47.mp3" },
+  { letter: "त्र", image: "/hindi_alphabet_image/hindi_letter_48.png", sound: "/hindi_word_audio/hindi_word_48.mp3" },
+  { letter: "ज्ञ", image: "/hindi_alphabet_image/hindi_letter_49.png", sound: "/hindi_word_audio/hindi_word_49.mp3" },
+  { letter: "श्र", image: "/hindi_alphabet_image/hindi_letter_50.png", sound: "/hindi_word_audio/hindi_word_50.mp3" },
 
-
+  { letter: "ड़", image: "/hindi_alphabet_image/hindi_letter_51.png", sound: "/hindi_word_audio/hindi_word_51.mp3" },
+  { letter: "ढ़", image: "/hindi_alphabet_image/hindi_letter_52.png", sound: "/hindi_word_audio/hindi_word_52.mp3" }
 ];
 
 const Tracing = () => {
   const [index, setIndex] = useState(0);
-  const currentAlphabet = alphabets[index];
+  const [sequence, setSequence] = useState([]); // Adaptive sequence
+  const currentAlphabet = sequence[index] || alphabets[0];
   const canvasRef = useRef(null);
   const [progress, setProgress] = useState({});
+  const [accuracy, setAccuracy] = useState({});
+  const [currentIndex, setCurrentIndex] = useState(0); // Track the current index
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
+  const { letter: clickedLetter } = useParams();
+  
   // Fetch user tracing progress
   const fetchProgress = async () => {
     try {
-      const response = await axios.get("/api/tracing/progress");
-      const progressData = response.data.reduce((acc, item) => {
-        acc[item.letter] = item;
-        return acc;
-      }, {});
+      const promises = alphabets.map((item) =>
+        axios.get(`/api/progress/${item.letter}`)
+      );
+  
+      const responses = await Promise.all(promises);
+  
+      const progressData = {};
+      const accuracyData = {};
+  
+      responses.forEach((res, idx) => {
+        const letter = alphabets[idx].letter;
+        const data = res.data;
+        progressData[letter] = data;
+  
+        const total = data.totalAttempts || 0;
+        const correct = data.correctAttempts || 0;
+        const acc = total === 0 ? null : correct / total;
+        accuracyData[letter] = acc;
+      });
+  
       setProgress(progressData);
+      setAccuracy(accuracyData); // <- New: Save accuracies here
+      generateAdaptiveSequence(progressData);
     } catch (error) {
-      console.error("Failed to fetch tracing progress.", error);
+      console.error("Failed to fetch progress", error);
     }
   };
+  
+
+  const generateAdaptiveSequence = (progressData) => {
+    let zeroAttempts = [];
+    let lowAccuracy = [];
+    let highAccuracy = [];
+  
+    alphabets.forEach((item) => {
+      const data = progressData[item.letter];
+  
+      if (!data || data.total_attempts === 0) {
+        zeroAttempts.push(item);
+      } else {
+        const accuracy = data.correct_attempts / data.total_attempts;
+        if (accuracy < 0.7) {
+          lowAccuracy.push(item);
+        } else {
+          highAccuracy.push(item);
+        }
+      }
+    });
+  
+    // Shuffle each group randomly
+    const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+  
+    const finalSequence = [
+      ...shuffle(zeroAttempts),
+      ...shuffle(lowAccuracy),
+      ...shuffle(highAccuracy),
+    ];
+
+    // If a specific letter is clicked, find its index and adjust the sequence
+    if (clickedLetter) {
+      const clickedIndex = finalSequence.findIndex(item => item.letter === clickedLetter);
+      if (clickedIndex !== -1) {
+        const reorderedSequence = [
+          finalSequence[clickedIndex], // Start with the clicked letter
+          ...finalSequence.slice(0, clickedIndex),
+          ...finalSequence.slice(clickedIndex + 1)
+        ];
+        setSequence(reorderedSequence); // Update sequence to start with the clicked letter
+        setCurrentIndex(0); // Start with the clicked letter
+      }
+    } else {
+      setSequence(finalSequence); // Default sequence if no letter clicked
+    }
+  };
+  
+
+  
+  
 
   useEffect(() => {
     fetchProgress();
@@ -87,34 +176,17 @@ const Tracing = () => {
     sound.play();
   };
 
+  const shouldShowGuide = () => {
+    const currentLetter = currentAlphabet.letter;
+    const acc = accuracy[currentLetter];
+    console.log("Current Letter:", currentLetter, "| Accuracy:", acc);
+    if (acc === undefined) return true; 
+
+    return acc === null || acc < 0.7;
+  };
+
+  
   // Save Tracing Data
-  //const saveTracingData = async (deviationScore, isCorrect) => {
-  //  console.log(
-  //    `📚 Saving data: Letter: ${currentAlphabet.letter}, Deviation: ${deviationScore}, Correct: ${isCorrect}`
-  //  );
-  //  const currentProgress = progress[currentAlphabet.letter] || {
-  //    attempts: 0,
-  //    correct_attempts: 0,
-  //  };
-
-  //  try {
-  //    console.log("Sending data to backend...");
-  //    await axios.post("/api/tracing/save", {
-  //      letter: currentAlphabet.letter,
-  //      deviation_score: deviationScore, // Placeholder for now
-  //      attempts: currentProgress.attempts + 1,
-  //      correct_attempts: isCorrect ? currentProgress.correct_attempts + 1 : currentProgress.correct_attempts,
-  //      //correct_attempts: isCorrect ? 1 : 0, // ✅ Correctly set based on prediction
-  //      //isCorrect, // ✅ Add this to avoid undefined issue
-  //    });
-  //    fetchProgress();
-  //    console.log("Data sent successfully!");
-  //  } catch (error) {
-  //    console.error("Failed to save tracing data.", error);
-  //  }
-  //};
-
-
   const saveTracingData = async (deviationScore, isCorrect) => {
     console.log(
       `📚 Saving data: Letter: ${currentAlphabet.letter}, Deviation: ${deviationScore}, Correct: ${isCorrect}`
@@ -136,28 +208,8 @@ const Tracing = () => {
       console.error("❌ Failed to save tracing data.", error);
     }
   };
-  
-  
-  
-  
-  
-  
-  
 
   // Convert Canvas Data to Base64 for CNN
-//const getCanvasData = () => {
-//  if (canvasRef.current) {
-//    const canvasData = canvasRef.current.getSaveData();
-//    console.log("🖼️ Canvas Data:", canvasData.slice(0, 50)); // Print first 50 chars for debug
-//    const canvasElement = document.createElement("canvas");
-//    const ctx = canvasElement.getContext("2d");
-//    const img = new Image();
-//    img.src = canvasRef.current.canvasContainer.childNodes[1].toDataURL(); // Get the drawing as image data
-//    return img.src.replace("data:image/png;base64,", ""); // Send only base64 data
-//  }
-//  return null;
-//};
-
 const [previewImage, setPreviewImage] = useState(null); // State for preview
 
 const getCanvasData = () => {
@@ -271,19 +323,6 @@ const getCanvasData = () => {
 };
 
 
-
-
-
-
-
-  // Handle Tracing Submission
-  //const handleSubmit = () => {
-  //  const deviationScore = Math.random() * 10; // Placeholder for now
-  //  const isCorrect = deviationScore < 5; // Arbitrary threshold for success
-  //  saveTracingData(deviationScore, isCorrect);
-  //  canvasRef.current.clear();
-  //};
-
   // Submit Tracing Data
 const handleSubmit = async () => {
   const canvasData = getCanvasData(); // ✅ Already fixed to return canvas data
@@ -306,39 +345,56 @@ const handleSubmit = async () => {
 
     const { deviation_score, isCorrect } = response.data;
     console.log("✅ Prediction received:", { deviation_score, isCorrect });
+
     
     // ✅ Save results in DB
     await saveTracingData(deviation_score, isCorrect);
 
-    // Save results in DB
-    //await axios.post("/api/tracing/save", {
-    //  letter: currentAlphabet.letter,
-    //  deviation_score, // ✅ This should now have a valid value
-    //  attempts: (progress[currentAlphabet.letter]?.attempts || 0) + 1,
-    //  correct_attempts: isCorrect
-    //    ? (progress[currentAlphabet.letter]?.correct_attempts || 0) + 1
-    //    : progress[currentAlphabet.letter]?.correct_attempts || 0,
-    //});
+    fetchProgress(); // Refresh progress    
+    
+    // Show feedback based on isCorrect
+    if (isCorrect) {
+      setFeedbackMessage("✅ Great job! You traced it correctly 🎉");
+    } else {
+      setFeedbackMessage("❌ Oops! Try again for better tracing ✍️");
+    }
 
-    fetchProgress(); // Refresh progress
+    setTimeout(() => {
+      setFeedbackMessage("");
+    }, 2000);
+
     canvasRef.current.clear(); // Clear canvas after submission
   } catch (error) {
     console.error("Prediction or saving error:", error);
+    setFeedbackMessage("Something went wrong. Please try again.");
   }
 };
-
-  
 
   // Navigation Functions
   const nextLetter = () => {
     setIndex((prev) => (prev + 1) % alphabets.length);
     canvasRef.current.clear();
+
   };
 
   const prevLetter = () => {
     setIndex((prev) => (prev - 1 + alphabets.length) % alphabets.length);
     canvasRef.current.clear();
+
   };
+
+  const goToNextLetter = () => {
+    if (index < sequence.length - 1) {
+      setIndex(index + 1);
+    } else {
+      setIndex(0);
+    }
+    canvasRef.current.clear();
+
+
+  };
+
+  console.log("shouldShowGuide():", shouldShowGuide());
 
   return (
     <div style={styles.container}>
@@ -367,7 +423,11 @@ const handleSubmit = async () => {
         {/* Right: Tracing Area */}
         <div style={styles.drawingArea}>
           {/* Guide Letter for Tracing */}
-          <div style={styles.guideLetter}>{currentAlphabet.letter}</div>
+          {shouldShowGuide() && (
+ 
+ <div style={styles.guideLetter}>{currentAlphabet.letter}</div>
+
+)}
 
           {/* Drawing Canvas */}
           <CanvasDraw
@@ -380,6 +440,8 @@ const handleSubmit = async () => {
             hideGrid={true}
             style={styles.canvas}
           />
+          
+
         </div>
       </div>
 
@@ -388,12 +450,23 @@ const handleSubmit = async () => {
         ✅ Submit
       </motion.button>
 
+      {/* Feedback Message */}
+<div
+  style={{
+    ...styles.feedbackMessage,
+    opacity: feedbackMessage ? 1 : 0,
+    transform: feedbackMessage ? "translateY(0px)" : "translateY(10px)",
+  }}
+>
+  {feedbackMessage}
+</div>
+
       {/* Navigation Buttons */}
       <div style={styles.buttonContainer}>
         <motion.button style={styles.button} whileTap={{ scale: 0.9 }} onClick={prevLetter}>
           ⬅️ Previous
         </motion.button>
-        <motion.button style={styles.button} whileTap={{ scale: 0.9 }} onClick={nextLetter}>
+        <motion.button style={styles.button} whileTap={{ scale: 0.9 }} onClick={goToNextLetter}>
           Next ➡️
         </motion.button>
       </div>
@@ -477,21 +550,24 @@ const styles = {
     boxShadow: "4px 4px 10px rgba(0,0,0,0.2)",
     overflow: "hidden",
   },
+
   guideLetter: {
+    fontSize: "200px",
     position: "absolute",
-    top: "50%",
+    color: "rgba(0,0,0,0.1)", // Light overlay
+    zIndex: 9,
+    pointerEvents: "none",
     left: "50%",
+    top: "50%",
     transform: "translate(-50%, -50%)",
-    fontSize: "8rem",
-    fontWeight: "bold",
-    color: "rgba(0, 0, 0, 0.1)",
-    zIndex: 1,
+
   },
+  
   canvas: {
     position: "absolute",
     top: 0,
     left: 0,
-    zIndex: 2,
+    zIndex: 1,
   },
   submitButton: {
     marginTop: "20px",
@@ -502,6 +578,16 @@ const styles = {
     backgroundColor: "#FF9800",
     color: "white",
     cursor: "pointer",
+  },
+  feedbackMessage: {
+    marginTop: "12px",
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#4f46e5",
+    textAlign: "center",
+    letterSpacing: "0.5px",
+    userSelect: "none",
+    transition: "opacity 0.4s ease, transform 0.4s ease",
   },
   buttonContainer: {
     display: "flex",

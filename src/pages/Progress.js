@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Progress = () => {
   const [progressData, setProgressData] = useState({
@@ -14,7 +15,14 @@ const Progress = () => {
     },
   });
 
+  const navigate = useNavigate();
+
+  const goToTracing = (letter) => {
+    navigate(`/tracing/${letter}`);
+  };
+
   const letters = [
+    "अ", "आ", "इ", "ई", "उ", "ऊ", "ऋ", "ए", "ऐ", "ओ", "औ", "अं", "अः",
     "क", "ख", "ग", "घ", "ङ", "च", "छ", "ज", "झ", "ञ", "ट", "ठ", "ड", "ढ", "ण",
     "त", "थ", "द", "ध", "न", "प", "फ", "ब", "भ", "म", "य", "र", "ल", "व", "श",
     "ष", "स", "ह", "क्ष", "त्र", "ज्ञ", "०", "१", "२", "३", "४", "५", "६", "७", "८", "९"
@@ -26,10 +34,27 @@ const Progress = () => {
         const tracingProgress = {};
         for (const letter of letters) {
           const response = await axios.get(`/api/progress/${letter}`);
-          const { totalAttempts, correctAttempts } = response.data;
-          tracingProgress[letter] =
-            totalAttempts > 0 ? correctAttempts / totalAttempts : 0;
+        
+          let latestEntry = { attempts: 0, correct_attempts: 0 };
+        
+          if (Array.isArray(response.data) && response.data.length > 0) {
+            latestEntry = response.data.reduce((max, entry) =>
+              entry.attempts > max.attempts ? entry : max
+            , latestEntry);
+          } else if (response.data) {
+            latestEntry = response.data;
+          }
+        
+          const { totalAttempts, correctAttempts } = latestEntry;
+        
+          tracingProgress[letter] = {
+            percentage: totalAttempts > 0 ? correctAttempts / totalAttempts : 0,
+            correctAttempts,
+            totalAttempts,
+          };
         }
+        
+        
 
         // Fetch game progress for each game separately
         const gameNames = ["MemoryMatch", "SoundMatch", "ImageMatch", "Quiz"];
@@ -69,44 +94,85 @@ const Progress = () => {
 
       <p style={styles.subtitle}>Keep going, you're doing great! 🌟</p>
 
-      {/* Tracing Progress Section */}
-      <div style={styles.section}>
-        <motion.h2
-          style={styles.sectionTitle}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          ✍️ Letter Tracing Progress
-        </motion.h2>
+{/* Tracing Progress Section */}
+<div style={styles.section}>
+  <motion.h2
+    style={styles.sectionTitle}
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    ✍️ Letter Tracing Progress
+  </motion.h2>
 
-        <div style={styles.cardsContainer}>
-          {letters.map((letter, index) => {
-            const progress = progressData.tracingProgress[letter] || 0;
-            return (
-              <motion.div
-                key={index}
-                style={styles.card}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div style={styles.cardHeader}>{letter}</div>
-                <div style={styles.progressBarContainer}>
-                  <div
-                    style={{
-                      ...styles.progressBar,
-                      width: `${progress * 100}%`,
-                    }}
-                  />
-                </div>
-                <div style={styles.progressText}>
-                  {Math.round(progress * 100)}%
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
+  <div style={styles.cardsContainer}>
+    {letters.map((letter, index) => {
+      const data =
+        progressData.tracingProgress[letter] || {
+          correctAttempts: 0,
+          totalAttempts: 0,
+          percentage: 0,
+        };
+
+      const correctAttempts = data.correctAttempts;
+      const totalAttempts = data.totalAttempts;
+      const progress = data.percentage;  // <----- Use directly
+      const incorrectAttempts = totalAttempts - correctAttempts;
+
+      return (
+        <motion.div
+          key={index}
+          style={{ ...styles.card, cursor: "pointer" }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => goToTracing(letter)}
+        >
+          <div style={styles.cardHeader}>{letter}</div>
+
+          <div style={styles.progressBarContainer}>
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                height: "20px",
+                borderRadius: "10px",
+                overflow: "hidden",
+                backgroundColor: "#ddd",
+                cursor: "pointer",
+              }}
+            >
+              <div
+                style={{
+                  width: `${progress * 100}%`,
+                  backgroundColor: "#4CAF50",
+                }}
+                title={`${correctAttempts} correct attempt${
+                  correctAttempts !== 1 ? "s" : ""
+                } so far!`}
+              />
+              <div
+                style={{
+                  width: `${(1 - progress) * 100}%`,
+                  backgroundColor: "#FF4F5A",
+                }}
+                title={`${incorrectAttempts} incorrect attempt${
+                  incorrectAttempts !== 1 ? "s" : ""
+                } so far!`}
+              />
+            </div>
+          </div>
+
+          <div style={styles.progressText}>
+            {Math.round(progress * 100)}%
+          </div>
+        </motion.div>
+      );
+    })}
+  </div>
+</div>
+
+
+
 
       {/* Game Scores Section */}
       <div style={styles.section}>
